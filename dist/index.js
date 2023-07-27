@@ -123,7 +123,8 @@ function attachSummary(testResults, detailedSummary, includePassed) {
             [
                 { data: '', header: true },
                 { data: 'Test', header: true },
-                { data: 'Result', header: true }
+                { data: 'Result', header: true },
+                { data: 'Time', header: true }
             ]
         ];
         for (const testResult of testResults) {
@@ -151,7 +152,8 @@ function attachSummary(testResults, detailedSummary, includePassed) {
                                 ? '✅ pass'
                                 : annotation.status === 'skipped'
                                     ? `⏭️ skipped`
-                                    : `❌ ${annotation.annotation_level}`}`
+                                    : `❌ ${annotation.annotation_level}`}`,
+                            `${annotation.time}`
                         ]);
                     }
                 }
@@ -648,6 +650,7 @@ suite, parentName, suiteRegex, annotatePassed = false, checkRetries = false, exc
                     annotation_level: success || skip ? 'notice' : 'failure',
                     status: skip ? 'skipped' : success ? 'success' : 'failure',
                     title: escapeEmoji(title),
+                    time: testcase._attributes.time,
                     message: escapeEmoji(message),
                     raw_details: escapeEmoji(stackTrace)
                 });
