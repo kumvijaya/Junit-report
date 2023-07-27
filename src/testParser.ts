@@ -30,6 +30,7 @@ export interface Annotation {
   annotation_level: 'failure' | 'notice' | 'warning'
   status: 'success' | 'failure' | 'skipped'
   title: string
+  time: string
   message: string
   raw_details: string
 }
@@ -376,6 +377,7 @@ async function parseSuite(
         annotation_level: success || skip ? 'notice' : 'failure', // a skipped test shall not fail the run
         status: skip ? 'skipped' : success ? 'success' : 'failure',
         title: escapeEmoji(title),
+        time: testcase._attributes.time,
         message: escapeEmoji(message),
         raw_details: escapeEmoji(stackTrace)
       })
