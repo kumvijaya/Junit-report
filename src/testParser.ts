@@ -256,6 +256,9 @@ async function parseSuite(
       const testcaseMap = new Map<string, any>()
       for (const testcase of testcases) {
         const key = testcase._attributes.name
+        const time = testcase._attributes.time
+        core.info(`Test case time (1): ${time}`)
+        core.debug(`Test case time (1): ${time}`)
         if (testcaseMap.get(key) !== undefined) {
           // testcase with matching name exists
           const failed = testcase.failure || testcase.error
@@ -277,7 +280,9 @@ async function parseSuite(
 
     for (const testcase of testcases) {
       totalCount++
-
+      const time = testcase._attributes.time
+      core.info(`Test case time (1): ${time}`)
+      core.debug(`Test case time (1): ${time}`)
       const testFailure = testcase.failure || testcase.error // test failed
       const skip =
         testcase.skipped || testcase._attributes.status === 'disabled' || testcase._attributes.status === 'ignored'

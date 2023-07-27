@@ -548,6 +548,9 @@ suite, parentName, suiteRegex, annotatePassed = false, checkRetries = false, exc
                 const testcaseMap = new Map();
                 for (const testcase of testcases) {
                     const key = testcase._attributes.name;
+                    const time = testcase._attributes.time;
+                    core.info(`Test case time (1): ${time}`);
+                    core.debug(`Test case time (1): ${time}`);
                     if (testcaseMap.get(key) !== undefined) {
                         // testcase with matching name exists
                         const failed = testcase.failure || testcase.error;
@@ -570,6 +573,9 @@ suite, parentName, suiteRegex, annotatePassed = false, checkRetries = false, exc
             }
             for (const testcase of testcases) {
                 totalCount++;
+                const time = testcase._attributes.time;
+                core.info(`Test case time (1): ${time}`);
+                core.debug(`Test case time (1): ${time}`);
                 const testFailure = testcase.failure || testcase.error; // test failed
                 const skip = testcase.skipped || testcase._attributes.status === 'disabled' || testcase._attributes.status === 'ignored';
                 const failed = testFailure && !skip; // test faiure, but was skipped -> don't fail if a ignored test failed
