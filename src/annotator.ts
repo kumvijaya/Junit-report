@@ -122,7 +122,8 @@ export async function attachSummary(
     [
       {data: '', header: true},
       {data: 'Test', header: true},
-      {data: 'Result', header: true}
+      {data: 'Result', header: true},
+      {data: 'Time', header: true}
     ]
   ]
 
@@ -158,7 +159,8 @@ export async function attachSummary(
                 : annotation.status === 'skipped'
                 ? `⏭️ skipped`
                 : `❌ ${annotation.annotation_level}`
-            }`
+            }`,
+            `${annotation.time}`
           ])
         }
       }
