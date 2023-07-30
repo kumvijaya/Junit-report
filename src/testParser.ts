@@ -377,7 +377,9 @@ async function parseSuite(
         annotation_level: success || skip ? 'notice' : 'failure', // a skipped test shall not fail the run
         status: skip ? 'skipped' : success ? 'success' : 'failure',
         title: escapeEmoji(title),
-        time: testcase._attributes.time,
+        time: (testcase._attributes.time).toLocaleTimeString([], {
+          timeZone: 'UTC',
+       }),
         message: escapeEmoji(message),
         raw_details: escapeEmoji(stackTrace)
       })
