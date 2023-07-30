@@ -48,10 +48,10 @@ function secondsToHms(d) {
     const h = Math.floor(d / 3600);
     const m = Math.floor((d % 3600) / 60);
     const s = Math.floor((d % 3600) % 60);
-    const hDisplay = h > 0 ? h + (h === 1 ? ' h, ' : ' h, ') : '';
-    const mDisplay = m > 0 ? m + (m === 1 ? ' m, ' : ' m, ') : '';
-    const sDisplay = s > 0 ? s + (s === 1 ? ' s, ' : ' s, ') : '';
-    const milDisplay = deci > 0 ? deci + (deci === 1 ? ' ms' : ' ms') : '';
+    const hDisplay = h > 0 ? h + (h === 1 ? 'hr ' : 'hr ') : '';
+    const mDisplay = m > 0 ? m + (m === 1 ? 'min ' : 'min ') : '';
+    const sDisplay = s > 0 ? s + (s === 1 ? 's ' : 's ') : '';
+    const milDisplay = deci > 0 ? deci + (deci === 1 ? 'ms' : 'ms') : '';
     const displaytext = hDisplay + mDisplay + sDisplay + milDisplay;
     if (displaytext === '') {
         return '0 s';
@@ -130,7 +130,6 @@ function attachSummary(testResults, detailedSummary, includePassed) {
     return __awaiter(this, void 0, void 0, function* () {
         const table = [
             [
-                { data: '', header: true },
                 { data: 'Tests', header: true },
                 { data: 'Passed ✅', header: true },
                 { data: 'Skipped ⏭️', header: true },
@@ -140,7 +139,6 @@ function attachSummary(testResults, detailedSummary, includePassed) {
         ];
         const detailsTable = [
             [
-                { data: '', header: true },
                 { data: 'Test', header: true },
                 { data: 'Result', header: true },
                 { data: 'Time', header: true }
@@ -148,7 +146,6 @@ function attachSummary(testResults, detailedSummary, includePassed) {
         ];
         for (const testResult of testResults) {
             table.push([
-                `${testResult.checkName}`,
                 `${testResult.totalCount} ran`,
                 `${testResult.passed} passed`,
                 `${testResult.skipped} skipped`,
@@ -166,7 +163,6 @@ function attachSummary(testResults, detailedSummary, includePassed) {
                 else {
                     for (const annotation of annotations) {
                         detailsTable.push([
-                            `${testResult.checkName}`,
                             `${annotation.title}`,
                             `${annotation.status === 'success'
                                 ? '✅ pass'
