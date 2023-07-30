@@ -5,14 +5,22 @@ import {SummaryTableRow} from '@actions/core/lib/summary'
 
 function secondsToHms(d: number): string {
   d = Number(d)
+  const deci: number = (d - Math.floor(d)) * 1000
   const h: number = Math.floor(d / 3600)
   const m: number = Math.floor((d % 3600) / 60)
   const s: number = Math.floor((d % 3600) % 60)
 
-  const hDisplay: string = h > 0 ? h + (h === 1 ? ' hour, ' : ' hours, ') : ''
-  const mDisplay: string = m > 0 ? m + (m === 1 ? ' minute, ' : ' minutes, ') : ''
-  const sDisplay: string = s > 0 ? s + (s === 1 ? ' second' : ' seconds') : ''
-  return hDisplay + mDisplay + sDisplay
+  const hDisplay: string = h > 0 ? h + (h === 1 ? ' h, ' : ' h, ') : ''
+  const mDisplay: string = m > 0 ? m + (m === 1 ? ' m, ' : ' m, ') : ''
+  const sDisplay: string = s > 0 ? s + (s === 1 ? ' s' : ' s') : ''
+  const milDisplay: string = deci > 0 ? deci + (deci === 1 ? ' ms' : ' ms') : ''
+
+  const displaytext = hDisplay + mDisplay + sDisplay + milDisplay
+  if (displaytext === '') {
+    return '0 s'
+  } else {
+    return displaytext
+  }
 }
 
 export async function annotateTestResult(
