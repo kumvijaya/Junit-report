@@ -42,6 +42,16 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.attachSummary = exports.annotateTestResult = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
+function secondsToHms(d) {
+    d = Number(d);
+    const h = Math.floor(d / 3600);
+    const m = Math.floor((d % 3600) / 60);
+    const s = Math.floor((d % 3600) % 60);
+    const hDisplay = h > 0 ? h + (h === 1 ? ' hour, ' : ' hours, ') : '';
+    const mDisplay = m > 0 ? m + (m === 1 ? ' minute, ' : ' minutes, ') : '';
+    const sDisplay = s > 0 ? s + (s === 1 ? ' second' : ' seconds') : '';
+    return hDisplay + mDisplay + sDisplay;
+}
 function annotateTestResult(testResult, token, headSha, annotateOnly, updateCheck, annotateNotice, jobName) {
     return __awaiter(this, void 0, void 0, function* () {
         const annotations = testResult.annotations.filter(annotation => annotateNotice || annotation.annotation_level !== 'notice');
@@ -135,7 +145,7 @@ function attachSummary(testResults, detailedSummary, includePassed) {
                 `${testResult.passed} passed`,
                 `${testResult.skipped} skipped`,
                 `${testResult.failed} failed`,
-                `${testResult.totalduration}`
+                `${secondsToHms(testResult.totalduration)}`
             ]);
             if (detailedSummary) {
                 const annotations = testResult.annotations.filter(annotation => includePassed || annotation.annotation_level !== 'notice');

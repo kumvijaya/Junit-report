@@ -3,6 +3,18 @@ import {TestResult} from './testParser'
 import * as github from '@actions/github'
 import {SummaryTableRow} from '@actions/core/lib/summary'
 
+function secondsToHms(d: number): string {
+  d = Number(d)
+  const h: number = Math.floor(d / 3600)
+  const m: number = Math.floor((d % 3600) / 60)
+  const s: number = Math.floor((d % 3600) % 60)
+
+  const hDisplay: string = h > 0 ? h + (h === 1 ? ' hour, ' : ' hours, ') : ''
+  const mDisplay: string = m > 0 ? m + (m === 1 ? ' minute, ' : ' minutes, ') : ''
+  const sDisplay: string = s > 0 ? s + (s === 1 ? ' second' : ' seconds') : ''
+  return hDisplay + mDisplay + sDisplay
+}
+
 export async function annotateTestResult(
   testResult: TestResult,
   token: string,
@@ -135,7 +147,7 @@ export async function attachSummary(
       `${testResult.passed} passed`,
       `${testResult.skipped} skipped`,
       `${testResult.failed} failed`,
-      `${testResult.totalduration}`
+      `${secondsToHms(testResult.totalduration)}`
     ])
 
     if (detailedSummary) {
