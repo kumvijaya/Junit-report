@@ -140,7 +140,7 @@ export async function attachSummary(
 
   const detailsTable: SummaryTableRow[] = [
     [
-      {data: 'Test', header: true},
+      {data: 'Test Result', header: true},
       {data: 'Result', header: true},
       {data: 'Time', header: true}
     ]
@@ -148,10 +148,10 @@ export async function attachSummary(
 
   for (const testResult of testResults) {
     table.push([
-      `${testResult.totalCount} ran`,
-      `${testResult.passed} passed`,
-      `${testResult.skipped} skipped`,
-      `${testResult.failed} failed`,
+      `${testResult.failed > 0 ? `🔴 Fail` : `✅ Pass`}`,
+      `${testResult.passed}`,
+      `${testResult.skipped}`,
+      `${testResult.failed}`,
       `${secondsToHms(testResult.totalduration)}`
     ])
 
