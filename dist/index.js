@@ -652,9 +652,7 @@ suite, parentName, suiteRegex, annotatePassed = false, checkRetries = false, exc
                     annotation_level: success || skip ? 'notice' : 'failure',
                     status: skip ? 'skipped' : success ? 'success' : 'failure',
                     title: escapeEmoji(title),
-                    time: (testcase._attributes.time).toLocaleTimeString([], {
-                        timeZone: 'UTC',
-                    }),
+                    time: testcase._attributes.time,
                     message: escapeEmoji(message),
                     raw_details: escapeEmoji(stackTrace)
                 });
