@@ -116,7 +116,8 @@ function attachSummary(testResults, detailedSummary, includePassed) {
                 { data: 'Tests', header: true },
                 { data: 'Passed ✅', header: true },
                 { data: 'Skipped ⏭️', header: true },
-                { data: 'Failed ❌', header: true }
+                { data: 'Failed ❌', header: true },
+                { data: 'TimeDuration ⏰', header: true }
             ]
         ];
         const detailsTable = [
@@ -133,7 +134,8 @@ function attachSummary(testResults, detailedSummary, includePassed) {
                 `${testResult.totalCount} ran`,
                 `${testResult.passed} passed`,
                 `${testResult.skipped} skipped`,
-                `${testResult.failed} failed`
+                `${testResult.failed} failed`,
+                `${testResult.totalduration}`
             ]);
             if (detailedSummary) {
                 const annotations = testResult.annotations.filter(annotation => includePassed || annotation.annotation_level !== 'notice');
@@ -259,6 +261,7 @@ function run() {
                 skipped: 0,
                 failed: 0,
                 passed: 0,
+                totalduration: 0,
                 annotations: []
             };
             core.info(`Retrieved ${reportsCount} reports to process.`);
@@ -500,9 +503,10 @@ suite, parentName, suiteRegex, annotatePassed = false, checkRetries = false, exc
     return __awaiter(this, void 0, void 0, function* () {
         let totalCount = 0;
         let skipped = 0;
+        let duration = 0;
         const annotations = [];
         if (!suite.testsuite && !suite.testsuites) {
-            return { totalCount, skipped, annotations };
+            return { totalCount, skipped, duration, annotations };
         }
         const testsuites = suite.testsuite
             ? Array.isArray(suite.testsuite)
@@ -513,7 +517,7 @@ suite, parentName, suiteRegex, annotatePassed = false, checkRetries = false, exc
                 : [suite.testsuites.testsuite];
         for (const testsuite of testsuites) {
             if (!testsuite) {
-                return { totalCount, skipped, annotations };
+                return { totalCount, skipped, duration, annotations };
             }
             let suiteName = '';
             if (suiteRegex) {
@@ -530,6 +534,7 @@ suite, parentName, suiteRegex, annotatePassed = false, checkRetries = false, exc
             const res = yield parseSuite(testsuite, suiteName, suiteRegex, annotatePassed, checkRetries, excludeSources, checkTitleTemplate, testFilesPrefix, transformer, followSymlink, annotationsLimit);
             totalCount += res.totalCount;
             skipped += res.skipped;
+            duration += parseFloat(testsuite._attributes.time);
             annotations.push(...res.annotations);
             if (!testsuite.testcase) {
                 continue;
@@ -537,7 +542,7 @@ suite, parentName, suiteRegex, annotatePassed = false, checkRetries = false, exc
             else if (annotationsLimit > 0) {
                 const count = annotations.filter(a => a.annotation_level === 'failure' || annotatePassed).length;
                 if (count >= annotationsLimit) {
-                    return { totalCount, skipped, annotations };
+                    return { totalCount, skipped, duration, annotations };
                 }
             }
             let testcases = Array.isArray(testsuite.testcase)
@@ -550,9 +555,6 @@ suite, parentName, suiteRegex, annotatePassed = false, checkRetries = false, exc
                 const testcaseMap = new Map();
                 for (const testcase of testcases) {
                     const key = testcase._attributes.name;
-                    const time = testcase._attributes.time;
-                    core.info(`Test case time (1): ${time}`);
-                    core.debug(`Test case time (1): ${time}`);
                     if (testcaseMap.get(key) !== undefined) {
                         // testcase with matching name exists
                         const failed = testcase.failure || testcase.error;
@@ -657,12 +659,12 @@ suite, parentName, suiteRegex, annotatePassed = false, checkRetries = false, exc
                 if (annotationsLimit > 0) {
                     const count = annotations.filter(a => a.annotation_level === 'failure' || annotatePassed).length;
                     if (count >= annotationsLimit) {
-                        return { totalCount, skipped, annotations };
+                        return { totalCount, skipped, duration, annotations };
                     }
                 }
             }
         }
-        return { totalCount, skipped, annotations };
+        return { totalCount, skipped, duration, annotations };
     });
 }
 /**
@@ -680,17 +682,19 @@ function parseTestReports(checkName, summary, reportPaths, suiteRegex, annotateP
         let annotations = [];
         let totalCount = 0;
         let skipped = 0;
+        let totalduration = 0;
         try {
             for (var _d = true, _e = __asyncValues(globber.globGenerator()), _f; _f = yield _e.next(), _a = _f.done, !_a; _d = true) {
                 _c = _f.value;
                 _d = false;
                 const file = _c;
                 core.debug(`Parsing report file: ${file}`);
-                const { totalCount: c, skipped: s, annotations: a } = yield parseFile(file, suiteRegex, annotatePassed, checkRetries, excludeSources, checkTitleTemplate, testFilesPrefix, transformer, followSymlink, annotationsLimit);
+                const { totalCount: c, skipped: s, duration: d, annotations: a } = yield parseFile(file, suiteRegex, annotatePassed, checkRetries, excludeSources, checkTitleTemplate, testFilesPrefix, transformer, followSymlink, annotationsLimit);
                 if (c === 0)
                     continue;
                 totalCount += c;
                 skipped += s;
+                totalduration += d;
                 annotations = annotations.concat(a);
                 if (annotationsLimit > 0) {
                     const count = annotations.filter(an => an.annotation_level === 'failure' || annotatePassed).length;
@@ -717,6 +721,7 @@ function parseTestReports(checkName, summary, reportPaths, suiteRegex, annotateP
             skipped,
             failed,
             passed,
+            totalduration,
             annotations
         };
     });

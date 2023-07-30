@@ -55,6 +55,7 @@ export async function run(): Promise<void> {
       skipped: 0,
       failed: 0,
       passed: 0,
+      totalduration: 0,
       annotations: []
     }
 

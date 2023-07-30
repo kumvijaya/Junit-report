@@ -8,6 +8,7 @@ import {applyTransformer} from './utils'
 interface InternalTestResult {
   totalCount: number
   skipped: number
+  duration: number
   annotations: Annotation[]
 }
 
@@ -18,6 +19,7 @@ export interface TestResult {
   skipped: number
   failed: number
   passed: number
+  totalduration: number
   annotations: Annotation[]
 }
 
@@ -189,10 +191,11 @@ async function parseSuite(
 ): Promise<InternalTestResult> {
   let totalCount = 0
   let skipped = 0
+  let duration = 0
   const annotations: Annotation[] = []
 
   if (!suite.testsuite && !suite.testsuites) {
-    return {totalCount, skipped, annotations}
+    return {totalCount, skipped, duration, annotations}
   }
 
   const testsuites = suite.testsuite
@@ -205,7 +208,7 @@ async function parseSuite(
 
   for (const testsuite of testsuites) {
     if (!testsuite) {
-      return {totalCount, skipped, annotations}
+      return {totalCount, skipped, duration, annotations}
     }
 
     let suiteName = ''
@@ -235,6 +238,7 @@ async function parseSuite(
     )
     totalCount += res.totalCount
     skipped += res.skipped
+    duration += parseFloat(testsuite._attributes.time)
     annotations.push(...res.annotations)
 
     if (!testsuite.testcase) {
@@ -242,7 +246,7 @@ async function parseSuite(
     } else if (annotationsLimit > 0) {
       const count = annotations.filter(a => a.annotation_level === 'failure' || annotatePassed).length
       if (count >= annotationsLimit) {
-        return {totalCount, skipped, annotations}
+        return {totalCount, skipped, duration, annotations}
       }
     }
 
@@ -257,9 +261,6 @@ async function parseSuite(
       const testcaseMap = new Map<string, any>()
       for (const testcase of testcases) {
         const key = testcase._attributes.name
-        const time = testcase._attributes.time
-        core.info(`Test case time (1): ${time}`)
-        core.debug(`Test case time (1): ${time}`)
         if (testcaseMap.get(key) !== undefined) {
           // testcase with matching name exists
           const failed = testcase.failure || testcase.error
@@ -385,12 +386,12 @@ async function parseSuite(
       if (annotationsLimit > 0) {
         const count = annotations.filter(a => a.annotation_level === 'failure' || annotatePassed).length
         if (count >= annotationsLimit) {
-          return {totalCount, skipped, annotations}
+          return {totalCount, skipped, duration, annotations}
         }
       }
     }
   }
-  return {totalCount, skipped, annotations}
+  return {totalCount, skipped, duration, annotations}
 }
 
 /**
@@ -419,12 +420,14 @@ export async function parseTestReports(
   let annotations: Annotation[] = []
   let totalCount = 0
   let skipped = 0
+  let totalduration = 0
   for await (const file of globber.globGenerator()) {
     core.debug(`Parsing report file: ${file}`)
 
     const {
       totalCount: c,
       skipped: s,
+      duration: d,
       annotations: a
     } = await parseFile(
       file,
@@ -441,6 +444,7 @@ export async function parseTestReports(
     if (c === 0) continue
     totalCount += c
     skipped += s
+    totalduration += d
     annotations = annotations.concat(a)
 
     if (annotationsLimit > 0) {
@@ -462,6 +466,7 @@ export async function parseTestReports(
     skipped,
     failed,
     passed,
+    totalduration,
     annotations
   }
 }

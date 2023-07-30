@@ -114,7 +114,8 @@ export async function attachSummary(
       {data: 'Tests', header: true},
       {data: 'Passed ✅', header: true},
       {data: 'Skipped ⏭️', header: true},
-      {data: 'Failed ❌', header: true}
+      {data: 'Failed ❌', header: true},
+      {data: 'TimeDuration ⏰', header: true}
     ]
   ]
 
@@ -133,7 +134,8 @@ export async function attachSummary(
       `${testResult.totalCount} ran`,
       `${testResult.passed} passed`,
       `${testResult.skipped} skipped`,
-      `${testResult.failed} failed`
+      `${testResult.failed} failed`,
+      `${testResult.totalduration}`
     ])
 
     if (detailedSummary) {
