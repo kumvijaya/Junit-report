@@ -238,7 +238,7 @@ async function parseSuite(
     )
     totalCount += res.totalCount
     skipped += res.skipped
-    duration += testsuite._attributes.time
+    duration += parseFloat(testsuite._attributes.time)
     annotations.push(...res.annotations)
 
     if (!testsuite.testcase) {

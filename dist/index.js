@@ -534,7 +534,7 @@ suite, parentName, suiteRegex, annotatePassed = false, checkRetries = false, exc
             const res = yield parseSuite(testsuite, suiteName, suiteRegex, annotatePassed, checkRetries, excludeSources, checkTitleTemplate, testFilesPrefix, transformer, followSymlink, annotationsLimit);
             totalCount += res.totalCount;
             skipped += res.skipped;
-            duration += testsuite._attributes.time;
+            duration += parseFloat(testsuite._attributes.time);
             annotations.push(...res.annotations);
             if (!testsuite.testcase) {
                 continue;
