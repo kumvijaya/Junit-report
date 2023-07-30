@@ -42,6 +42,24 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.attachSummary = exports.annotateTestResult = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
+function secondsToHms(d) {
+    d = Number(d);
+    const deci = Math.floor((d - Math.floor(d)) * 1000);
+    const h = Math.floor(d / 3600);
+    const m = Math.floor((d % 3600) / 60);
+    const s = Math.floor((d % 3600) % 60);
+    const hDisplay = h > 0 ? h + (h === 1 ? 'hr ' : 'hr ') : '';
+    const mDisplay = m > 0 ? m + (m === 1 ? 'min ' : 'min ') : '';
+    const sDisplay = s > 0 ? s + (s === 1 ? 's ' : 's ') : '';
+    const milDisplay = deci > 0 ? deci + (deci === 1 ? 'ms' : 'ms') : '';
+    const displaytext = hDisplay + mDisplay + sDisplay + milDisplay;
+    if (displaytext === '') {
+        return '0 s';
+    }
+    else {
+        return displaytext;
+    }
+}
 function annotateTestResult(testResult, token, headSha, annotateOnly, updateCheck, annotateNotice, jobName) {
     return __awaiter(this, void 0, void 0, function* () {
         const annotations = testResult.annotations.filter(annotation => annotateNotice || annotation.annotation_level !== 'notice');
@@ -112,7 +130,6 @@ function attachSummary(testResults, detailedSummary, includePassed) {
     return __awaiter(this, void 0, void 0, function* () {
         const table = [
             [
-                { data: '', header: true },
                 { data: 'Tests', header: true },
                 { data: 'Passed ✅', header: true },
                 { data: 'Skipped ⏭️', header: true },
@@ -122,20 +139,18 @@ function attachSummary(testResults, detailedSummary, includePassed) {
         ];
         const detailsTable = [
             [
-                { data: '', header: true },
-                { data: 'Test', header: true },
+                { data: 'Test Result', header: true },
                 { data: 'Result', header: true },
                 { data: 'Time', header: true }
             ]
         ];
         for (const testResult of testResults) {
             table.push([
-                `${testResult.checkName}`,
-                `${testResult.totalCount} ran`,
-                `${testResult.passed} passed`,
-                `${testResult.skipped} skipped`,
-                `${testResult.failed} failed`,
-                `${testResult.totalduration}`
+                `${testResult.failed > 0 ? `🔴 Fail` : `✅ Pass`}`,
+                `${testResult.passed}`,
+                `${testResult.skipped}`,
+                `${testResult.failed}`,
+                `${secondsToHms(testResult.totalduration)}`
             ]);
             if (detailedSummary) {
                 const annotations = testResult.annotations.filter(annotation => includePassed || annotation.annotation_level !== 'notice');
@@ -148,14 +163,13 @@ function attachSummary(testResults, detailedSummary, includePassed) {
                 else {
                     for (const annotation of annotations) {
                         detailsTable.push([
-                            `${testResult.checkName}`,
                             `${annotation.title}`,
                             `${annotation.status === 'success'
                                 ? '✅ pass'
                                 : annotation.status === 'skipped'
                                     ? `⏭️ skipped`
                                     : `❌ ${annotation.annotation_level}`}`,
-                            `${annotation.time}`
+                            `${secondsToHms(annotation.time)}`
                         ]);
                     }
                 }

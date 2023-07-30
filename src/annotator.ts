@@ -3,6 +3,26 @@ import {TestResult} from './testParser'
 import * as github from '@actions/github'
 import {SummaryTableRow} from '@actions/core/lib/summary'
 
+function secondsToHms(d: number): string {
+  d = Number(d)
+  const deci: number = Math.floor((d - Math.floor(d)) * 1000)
+  const h: number = Math.floor(d / 3600)
+  const m: number = Math.floor((d % 3600) / 60)
+  const s: number = Math.floor((d % 3600) % 60)
+
+  const hDisplay: string = h > 0 ? h + (h === 1 ? 'hr ' : 'hr ') : ''
+  const mDisplay: string = m > 0 ? m + (m === 1 ? 'min ' : 'min ') : ''
+  const sDisplay: string = s > 0 ? s + (s === 1 ? 's ' : 's ') : ''
+  const milDisplay: string = deci > 0 ? deci + (deci === 1 ? 'ms' : 'ms') : ''
+
+  const displaytext = hDisplay + mDisplay + sDisplay + milDisplay
+  if (displaytext === '') {
+    return '0 s'
+  } else {
+    return displaytext
+  }
+}
+
 export async function annotateTestResult(
   testResult: TestResult,
   token: string,
@@ -110,7 +130,6 @@ export async function attachSummary(
 ): Promise<void> {
   const table: SummaryTableRow[] = [
     [
-      {data: '', header: true},
       {data: 'Tests', header: true},
       {data: 'Passed ✅', header: true},
       {data: 'Skipped ⏭️', header: true},
@@ -121,8 +140,7 @@ export async function attachSummary(
 
   const detailsTable: SummaryTableRow[] = [
     [
-      {data: '', header: true},
-      {data: 'Test', header: true},
+      {data: 'Test Result', header: true},
       {data: 'Result', header: true},
       {data: 'Time', header: true}
     ]
@@ -130,12 +148,13 @@ export async function attachSummary(
 
   for (const testResult of testResults) {
     table.push([
-      `${testResult.checkName}`,
-      `${testResult.totalCount} ran`,
-      `${testResult.passed} passed`,
-      `${testResult.skipped} skipped`,
-      `${testResult.failed} failed`,
-      `${testResult.totalduration}`
+
+      `${testResult.failed > 0 ? `🔴 Fail` : `✅ Pass`}`,
+      `${testResult.passed}`,
+      `${testResult.skipped}`,
+      `${testResult.failed}`,
+      `${secondsToHms(testResult.totalduration)}`
+
     ])
 
     if (detailedSummary) {
@@ -153,7 +172,6 @@ export async function attachSummary(
       } else {
         for (const annotation of annotations) {
           detailsTable.push([
-            `${testResult.checkName}`,
             `${annotation.title}`,
             `${
               annotation.status === 'success'
@@ -162,7 +180,7 @@ export async function attachSummary(
                 ? `⏭️ skipped`
                 : `❌ ${annotation.annotation_level}`
             }`,
-            `${annotation.time}`
+            `${secondsToHms(annotation.time)}`
           ])
         }
       }

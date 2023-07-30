@@ -32,7 +32,7 @@ export interface Annotation {
   annotation_level: 'failure' | 'notice' | 'warning'
   status: 'success' | 'failure' | 'skipped'
   title: string
-  time: string
+  time: number
   message: string
   raw_details: string
 }
