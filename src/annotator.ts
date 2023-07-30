@@ -182,7 +182,7 @@ export async function attachSummary(
                 ? `⏭️ skipped`
                 : `❌ ${annotation.annotation_level}`
             }`,
-            `${annotation.time}`
+            `${secondsToHms(annotation.time)}`
           ])
         }
       }

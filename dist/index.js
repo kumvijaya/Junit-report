@@ -173,7 +173,7 @@ function attachSummary(testResults, detailedSummary, includePassed) {
                                 : annotation.status === 'skipped'
                                     ? `⏭️ skipped`
                                     : `❌ ${annotation.annotation_level}`}`,
-                            `${annotation.time}`
+                            `${secondsToHms(annotation.time)}`
                         ]);
                     }
                 }
