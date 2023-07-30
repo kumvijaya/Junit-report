@@ -148,11 +148,13 @@ export async function attachSummary(
 
   for (const testResult of testResults) {
     table.push([
+
       `${testResult.failed > 0 ? `🔴 Fail` : `✅ Pass`}`,
       `${testResult.passed}`,
       `${testResult.skipped}`,
       `${testResult.failed}`,
       `${secondsToHms(testResult.totalduration)}`
+
     ])
 
     if (detailedSummary) {
